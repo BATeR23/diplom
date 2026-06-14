@@ -16,6 +16,8 @@ WORKDIR /app
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
+
+# Устанавливаем недостающие npm пакеты
+RUN npm install && npm install laravel-echo pusher-js --save && npm run build
 
 CMD php artisan serve --host=0.0.0.0 --port=$PORT
