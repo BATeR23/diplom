@@ -19,4 +19,4 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm install laravel-echo pusher-js --save && npm run build
 
 # Исправленная CMD
-CMD sh -c "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+CMD php artisan serve --host=0.0.0.0 --port=8080
