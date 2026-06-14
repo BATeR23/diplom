@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    color-scheme: light;
+    --app-bg: #f8fafc;
+    --app-surface: rgba(255, 255, 255, 0.9);
+    --app-border: rgba(0, 0, 0, 0.1);
+}
+
+* {
+    font-family: 'Inter', 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    @apply bg-slate-50 text-gray-900 min-h-screen;
+    background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08), transparent 35%), radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.08), transparent 40%), linear-gradient(140deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));
+}
+
+#app {
+    @apply min-h-screen;
+}
+
+.app-shell {
+    @apply min-h-screen relative overflow-hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+    content: '';
+    @apply absolute rounded-full blur-3xl opacity-30 pointer-events-none;
+    background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%);
+    width: 420px;
+    height: 420px;
+    z-index: 0;
+}
+
+.app-shell::before {
+    top: -120px;
+    left: -120px;
+}
+
+.app-shell::after {
+    bottom: -160px;
+    right: -140px;
+}
+
+.glass-panel {
+    @apply rounded-3xl border border-gray-200 bg-white shadow-lg;
+}
+
+.glass-panel--dense {
+    @apply bg-gray-50 border-gray-300 shadow-inner;
+}
+
+.surface-card {
+    @apply rounded-3xl border border-gray-200 bg-white shadow-md;
+}
+
+.chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-700;
+}
+
+.section-heading {
+    @apply text-3xl font-semibold text-gray-900;
+}
+
+.subheading {
+    @apply text-base text-gray-600;
+}
+
+.form-field label {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    @apply mt-2 block w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+}
+
+.primary-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:shadow-blue-500/50 hover:scale-105;
+}
+
+.secondary-btn {
+    @apply inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:bg-gray-50;
+}
+
+.page-section {
+    @apply relative z-10 mx-auto flex w-full flex-col gap-10 px-4 pb-16 pt-10 sm:px-8 lg:flex-row lg:px-12;
+}
+
+.page-section__content {
+    @apply flex-1;
+}
+
+.page-section__aside {
+    @apply w-full lg:max-w-md;
+}
+
+.status-list {
+    @apply flex flex-col gap-4;
+}
+
+.status-item {
+    @apply flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm;
+}
+
+.status-item__icon {
+    @apply grid h-12 w-12 place-items-center rounded-2xl bg-blue-100 text-lg text-blue-600;
+}
+
+.timeline {
+    @apply relative flex flex-col gap-6 pl-6;
+}
+
+.timeline::before {
+    content: '';
+    @apply absolute left-3 top-0 h-full w-px bg-gray-300;
+}
+
+.timeline-step {
+    @apply relative flex flex-col gap-1;
+}
+
+.timeline-step::before {
+    content: '';
+    @apply absolute -left-[27px] top-1 h-3 w-3 rounded-full border-2 border-blue-500 bg-white;
+}
+
+.map-shell {
+    @apply overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg;
+}
