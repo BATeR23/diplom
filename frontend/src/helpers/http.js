@@ -1,7 +1,6 @@
 import axios from 'axios'
 
-// Временно захардкодим полный URL бекенда
-const API_BASE_URL = 'https://independent-embrace-production-a806.up.railway.app/api'
+const API_BASE_URL = 'https://independent-embrace-production-a806.up.railway.app'
 
 const http = axios.create({
     baseURL: API_BASE_URL,
