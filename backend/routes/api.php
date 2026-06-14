@@ -8,7 +8,9 @@ use App\Http\Controllers\RideController;
 use App\Http\Controllers\RideMessageController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
-
+Route::any('/test', function () {
+    return response()->json(['status' => 'API works!', 'time' => time()]);
+});
 Route::get('/rides/statistics', [RideController::class, 'driverStatistics']);
 
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -28,7 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
         return \Illuminate\Support\Facades\Broadcast::auth($request);
     });
-    
+
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
