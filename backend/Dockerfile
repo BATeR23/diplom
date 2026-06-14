@@ -1,7 +1,8 @@
 FROM dunglas/frankenphp:php8.4-bookworm
 
-# Устанавливаем расширение pdo_mysql
-RUN install-php-extensions pdo_mysql
+# Устанавливаем unzip и zip расширение
+RUN apt-get update && apt-get install -y unzip && \
+    install-php-extensions zip pdo_mysql
 
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
