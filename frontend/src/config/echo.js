@@ -61,7 +61,7 @@ const echo = new Echo({
 // Делаем Echo глобально доступным
 window.Echo = echo;
 
-// Логирование статуса паодключения для отладки
+// Логирование статусаккен паодключения для отладки
 echo.connector.pusher.connection.bind('connected', () => {
   console.log('✅ WebSocket подключен успешно');
 });
