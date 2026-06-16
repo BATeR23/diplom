@@ -108,9 +108,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Balance management
         Route::get('/balance-requests', [\App\Http\Controllers\AdminBalanceController::class, 'getRechargeRequests'])->middleware('role:admin,manager');
-        Route::get('/balance-requests/{request}', [\App\Http\Controllers\AdminBalanceController::class, 'getRechargeRequest'])->middleware('role:admin,manager');
-        Route::post('/balance-requests/{request}/approve', [\App\Http\Controllers\AdminBalanceController::class, 'approveRechargeRequest'])->middleware('role:admin,manager');
-        Route::post('/balance-requests/{request}/reject', [\App\Http\Controllers\AdminBalanceController::class, 'rejectRechargeRequest'])->middleware('role:admin,manager');
+        Route::get('/balance-requests/{rechargeRequest}', [\App\Http\Controllers\AdminBalanceController::class, 'getRechargeRequest'])->middleware('role:admin,manager');
+        Route::post('/balance-requests/{rechargeRequest}/approve', [\App\Http\Controllers\AdminBalanceController::class, 'approveRechargeRequest'])->middleware('role:admin,manager');
+        Route::post('/balance-requests/{rechargeRequest}/reject', [\App\Http\Controllers\AdminBalanceController::class, 'rejectRechargeRequest'])->middleware('role:admin,manager');
 
         // Audit logs
         Route::get('/audit-logs', [\App\Http\Controllers\AdminAuditLogController::class, 'index'])->middleware('role:admin,manager');
