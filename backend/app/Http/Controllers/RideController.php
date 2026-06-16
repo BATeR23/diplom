@@ -207,10 +207,9 @@ class RideController extends Controller
         // Получаем поездки, где пользователь является водителем
         $ridesAsDriver = Ride::where('driver_id', $userId)
             ->with(['bookings.passenger', 'vehicle', 'driver'])
-            ->whereHas('bookings') // Поездки с любыми бронированиями (включая pending)
+            ->whereHas('bookings')
             ->get()
             ->map(function ($ride) use ($user) {
-                // Для каждой поездки находим всех собеседников (пассажиров)
                 $chatPartners = $ride->bookings()
                     ->with('passenger')
                     ->get()
@@ -222,12 +221,11 @@ class RideController extends Controller
                         ];
                     })
                     ->filter(function ($partner) {
-                        return $partner['user'] !== null; // Фильтруем удаленных пользователей
+                        return $partner['user'] !== null;
                     })
                     ->values()
                     ->toArray();
 
-                // Возвращаем только если есть хотя бы один партнер для чата
                 if (empty($chatPartners)) {
                     return null;
                 }
@@ -238,13 +236,13 @@ class RideController extends Controller
                     'role' => 'driver',
                 ];
             })
-            ->filter() // Удаляем null значения
+            ->filter()
             ->values();
 
         // Получаем поездки, где пользователь является пассажиром
         $ridesAsPassenger = Ride::whereHas('bookings', function ($query) use ($userId) {
-                $query->where('passenger_id', $userId);
-            })
+            $query->where('passenger_id', $userId);
+        })
             ->with(['driver', 'vehicle', 'bookings' => function ($query) use ($userId) {
                 $query->where('passenger_id', $userId);
             }])
@@ -265,7 +263,7 @@ class RideController extends Controller
                     'role' => 'passenger',
                 ];
             })
-            ->filter() // Удаляем null значения
+            ->filter()
             ->values();
 
         // Объединяем и сортируем по дате отправления
@@ -281,27 +279,44 @@ class RideController extends Controller
     protected function processBookingPayment($booking)
     {
         $passenger = $booking->passenger;
+        $driver = $booking->ride->driver;
         $amount = $booking->price_total;
 
-        // Проверяем достаточность баланса
+        // 1. Проверяем достаточность баланса у пассажира
         if ($passenger->balance < $amount) {
-            throw new \Exception('Недостаточно средств на балансе у пассажира ' . $passenger->name . '. Пожалуйста, попросите его пополнить баланс.');
+            throw new \Exception('Недостаточно средств на балансе у пассажира ' . $passenger->name);
         }
 
-        $balanceBefore = $passenger->balance;
-        $balanceAfter = $balanceBefore - $amount;
+        // 2. Списываем деньги у пассажира
+        $passengerBalanceBefore = $passenger->balance;
+        $passengerBalanceAfter = $passengerBalanceBefore - $amount;
+        $passenger->update(['balance' => $passengerBalanceAfter]);
 
-        // Списываем баланс
-        $passenger->update(['balance' => $balanceAfter]);
+        // 3. Зачисляем деньги водителю
+        $driverBalanceBefore = $driver->balance;
+        $driverBalanceAfter = $driverBalanceBefore + $amount;
+        $driver->update(['balance' => $driverBalanceAfter]);
 
-        // Создаем транзакцию
+        // 4. Создаем транзакцию для пассажира (списание)
         \App\Models\BalanceTransaction::create([
             'user_id' => $passenger->id,
             'type' => 'payment',
-            'amount' => -$amount, // Отрицательное значение для списания
-            'balance_before' => $balanceBefore,
-            'balance_after' => $balanceAfter,
+            'amount' => -$amount,
+            'balance_before' => $passengerBalanceBefore,
+            'balance_after' => $passengerBalanceAfter,
             'description' => "Оплата поездки: {$booking->ride->origin_city} → {$booking->ride->destination_city}",
+            'ride_id' => $booking->ride_id,
+            'booking_id' => $booking->id,
+        ]);
+
+        // 5. Создаем транзакцию для водителя (зачисление)
+        \App\Models\BalanceTransaction::create([
+            'user_id' => $driver->id,
+            'type' => 'earning',
+            'amount' => $amount,
+            'balance_before' => $driverBalanceBefore,
+            'balance_after' => $driverBalanceAfter,
+            'description' => "Заработок за поездку: {$booking->ride->origin_city} → {$booking->ride->destination_city}",
             'ride_id' => $booking->ride_id,
             'booking_id' => $booking->id,
         ]);
@@ -312,13 +327,3 @@ class RideController extends Controller
         abort_unless($ride->driver_id === $request->user()->id, 403, 'Вы можете управлять только своими поездками.');
     }
 }
-
-
-
-
-
-
-
-
-
-
