@@ -66,6 +66,7 @@
 import { useLocationStore } from '@/stores/location'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { searchAddresses } from '@/helpers/geocoding'
 
 const location = useLocationStore()
 const router = useRouter()
@@ -79,10 +80,10 @@ const handleSearch = async () => {
   }
 
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery.value)}&limit=5&addressdetails=1`
-    )
-    const data = await response.json()
+    const data = await searchAddresses(searchQuery.value, {
+      limit: 5,
+      addressdetails: true,
+    })
     searchResults.value = data || []
   } catch (error) {
     console.error('Ошибка поиска адреса:', error)

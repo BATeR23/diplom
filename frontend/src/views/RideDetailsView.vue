@@ -145,6 +145,7 @@ import { onMounted, reactive, ref, computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import http from '@/helpers/http'
+import { searchAddresses } from '@/helpers/geocoding'
 import { useRidesStore } from '@/stores/rides'
 import { useAuthStore } from '@/stores/auth'
 import { LMap, LTileLayer, LMarker, LPolyline } from '@vue-leaflet/vue-leaflet'
@@ -310,10 +311,10 @@ const buildRoute = async () => {
 
       for (const query of queries) {
         try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
-          )
-          const data = await response.json()
+          const data = await searchAddresses(query, {
+            limit: 5,
+            addressdetails: true,
+          })
           
           if (data && data.length > 0) {
             // Ищем наиболее подходящий результат
@@ -336,10 +337,7 @@ const buildRoute = async () => {
       
       // Если ничего не найдено, пробуем найти хотя бы город
       try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`
-        )
-        const data = await response.json()
+        const data = await searchAddresses(city, { limit: 1, addressdetails: true })
         
         if (data && data.length > 0) {
           console.warn(`Найден только город "${city}", точный адрес не найден`)

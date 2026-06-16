@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalanceController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\GeocodingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RideController;
 use App\Http\Controllers\RideMessageController;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::any('/test', function () {
     return response()->json(['status' => 'API works!', 'time' => time()]);
 });
+Route::get('/geocoding/search', [GeocodingController::class, 'search']);
 Route::get('/rides/statistics', [RideController::class, 'driverStatistics']);
 
 Route::post('/auth/register', [AuthController::class, 'register']);

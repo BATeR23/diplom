@@ -30,7 +30,7 @@
               :class="{ 'border-rose-500': form.origin_address && !isValidOriginAddress, 'border-gray-300': !form.origin_address || isValidOriginAddress }"
               @input="searchAddress('origin', form.origin_city, form.origin_address)"
               @focus="showOriginResults = true"
-              @blur="setTimeout(() => { showOriginResults = false }, 200)"
+              @blur="hideOriginResults"
             />
             <div v-if="originSearchResults.length > 0 && showOriginResults" class="mt-2 bg-white rounded-lg shadow-lg max-h-60 overflow-y-auto border border-gray-200 z-10 relative">
               <div
@@ -69,7 +69,7 @@
               :class="{ 'border-rose-500': form.destination_address && !isValidDestinationAddress, 'border-gray-300': !form.destination_address || isValidDestinationAddress }"
               @input="searchAddress('destination', form.destination_city, form.destination_address)"
               @focus="showDestinationResults = true"
-              @blur="setTimeout(() => { showDestinationResults = false }, 200)"
+              @blur="hideDestinationResults"
             />
             <div v-if="destinationSearchResults.length > 0 && showDestinationResults" class="mt-2 bg-white rounded-lg shadow-lg max-h-60 overflow-y-auto border border-gray-200 z-10 relative">
               <div
@@ -184,6 +184,7 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, ref, computed } from 'vue'
 import http from '@/helpers/http'
+import { searchAddresses } from '@/helpers/geocoding'
 
 const vehicles = ref([])
 
@@ -349,6 +350,14 @@ const verifyAddress = async (addressData) => {
   }
 }
 
+const hideOriginResults = () => {
+  setTimeout(() => { showOriginResults.value = false }, 200)
+}
+
+const hideDestinationResults = () => {
+  setTimeout(() => { showDestinationResults.value = false }, 200)
+}
+
 const searchAddress = async (type, city, address) => {
   // Сбрасываем выбранный адрес при изменении текста
   if (type === 'origin') {
@@ -369,15 +378,11 @@ const searchAddress = async (type, city, address) => {
   try {
     // Формируем запрос: если указан город, добавляем его, иначе ищем только по адресу
     const query = city ? `${city}, ${address}` : address
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=15&addressdetails=1&extratags=1`
-    )
-    
-    if (!response.ok) {
-      throw new Error('Ошибка запроса к Nominatim')
-    }
-    
-    const data = await response.json()
+    const data = await searchAddresses(query, {
+      limit: 15,
+      addressdetails: true,
+      extratags: true,
+    })
 
     if (!data || !Array.isArray(data)) {
       if (type === 'origin') {
