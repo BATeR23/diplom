@@ -214,7 +214,7 @@ class AdminBalanceController extends Controller
             return response()->json(['message' => 'Доступ запрещен.'], 403);
         }
 
-        if (!Storage::disk('public')->exists($rechargeRequest->receipt_path)) {
+        if (!$rechargeRequest->receipt_path || !Storage::disk('public')->exists($rechargeRequest->receipt_path)) {
             return response()->json(['message' => 'Файл не найден.'], 404);
         }
 

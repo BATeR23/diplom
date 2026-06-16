@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRideRequest;
 use App\Http\Requests\UpdateRideRequest;
 use App\Models\Ride;
+use App\Models\Review;
 use App\Helpers\NotificationHelper;
 use App\Helpers\AuditLogger;
 use Carbon\Carbon;
@@ -23,7 +24,10 @@ class RideController extends Controller
 
     public function search(Request $request)
     {
-        $query = Ride::with(['driver', 'vehicle'])
+        $query = Ride::with([
+            'driver' => fn ($q) => $q->withCount('reviewsReceived'),
+            'vehicle',
+        ])
             ->where('status', 'published')
             ->where('departure_time', '>=', now());
 
@@ -90,7 +94,17 @@ class RideController extends Controller
 
     public function show(Ride $ride)
     {
-        return $ride->load(['driver', 'vehicle', 'bookings.passenger']);
+        $ride->load(['driver', 'vehicle', 'bookings.passenger']);
+
+        $driverReviews = Review::where('target_id', $ride->driver_id)
+            ->with(['author:id,name'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return response()->json(array_merge($ride->toArray(), [
+            'driver_reviews' => $driverReviews,
+        ]));
     }
 
     public function update(UpdateRideRequest $request, Ride $ride)

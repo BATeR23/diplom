@@ -43,13 +43,15 @@
             <p v-if="req.processed_at">Обработан: {{ formatDate(req.processed_at) }}</p>
             <p v-if="req.admin">Админ: {{ req.admin?.name }}</p>
             <div class="flex gap-2">
-              <a
-                :href="getReceiptUrl(req.id)"
-                target="_blank"
+              <button
+                v-if="req.receipt_path"
+                type="button"
                 class="text-blue-600 hover:text-blue-700 underline"
+                @click="openReceipt(req.id)"
               >
                 Просмотреть чек
-              </a>
+              </button>
+              <span v-else class="text-gray-400 text-sm">Чек не загружен</span>
             </div>
           </div>
 
@@ -116,6 +118,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import http from '@/helpers/http'
+import { openAdminDocument, getReceiptPath } from '@/helpers/adminDocuments'
 import dayjs from 'dayjs'
 
 const loading = ref(false)
@@ -185,12 +188,7 @@ const rejectRequest = async () => {
   }
 }
 
-const getReceiptUrl = (requestId) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
-  const token = localStorage.getItem('auth_token')
-  // Добавляем токен как query параметр для прямого доступа через браузер
-  return `${baseUrl}/admin/balance-requests/${requestId}/receipt${token ? '?token=' + token : ''}`
-}
+const openReceipt = (requestId) => openAdminDocument(getReceiptPath(requestId))
 
 const getStatusLabel = (status) => {
   const labels = {

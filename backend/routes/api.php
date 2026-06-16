@@ -21,9 +21,9 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::get('/rides/search', [RideController::class, 'search']);
 Route::get('/rides/{ride}', [RideController::class, 'show']);
 
-// Публичные маршруты для просмотра документов (с поддержкой токена через query параметр)
+// Маршруты для просмотра документов администратором
 Route::middleware([\App\Http\Middleware\HandleTokenAuth::class, 'auth:sanctum'])->group(function () {
-    Route::get('/admin/balance-requests/{request}/receipt', [\App\Http\Controllers\AdminBalanceController::class, 'getReceipt']);
+    Route::get('/admin/balance-requests/{rechargeRequest}/receipt', [\App\Http\Controllers\AdminBalanceController::class, 'getReceipt']);
     Route::get('/admin/vehicle-verifications/{vehicle}/document/{type}', [\App\Http\Controllers\AdminVehicleController::class, 'getDocument']);
 });
 

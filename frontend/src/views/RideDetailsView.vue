@@ -33,13 +33,32 @@
           </div>
           <div>
             <p class="text-lg font-semibold text-gray-900">{{ ride.driver.name }}</p>
-            <p class="text-sm text-gray-700">Рейтинг: {{ ride.driver.rating_average ?? '—' }}</p>
+            <p class="text-sm text-gray-700">
+              Рейтинг: {{ formatRating(ride.driver.rating_average) }}
+              <span v-if="driverReviews.length"> · {{ driverReviews.length }} {{ reviewsLabel(driverReviews.length) }}</span>
+            </p>
           </div>
         </div>
         <p class="text-sm text-gray-700" v-if="ride.vehicle">
           Автомобиль: {{ ride.vehicle.make }} {{ ride.vehicle.model }}, {{ ride.vehicle.year }} ·
           класс {{ ride.vehicle.comfort_class }}
         </p>
+      </div>
+      <div class="glass-panel p-6 space-y-4" v-if="driverReviews.length">
+        <p class="text-sm uppercase tracking-[0.3em] text-gray-600">Отзывы о водителе</p>
+        <div class="space-y-3">
+          <article
+            v-for="review in driverReviews"
+            :key="review.id"
+            class="rounded-2xl border border-gray-200 bg-gray-50 p-4"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <p class="font-semibold text-gray-900">{{ review.author?.name || 'Пассажир' }}</p>
+              <p class="text-sm font-semibold text-amber-600">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</p>
+            </div>
+            <p v-if="review.comment" class="mt-2 text-sm text-gray-700">{{ review.comment }}</p>
+          </article>
+        </div>
       </div>
       <div class="glass-panel p-6 space-y-4" v-if="isDriver && routeInfo.distance">
         <p class="text-sm uppercase tracking-[0.3em] text-gray-600">Информация о маршруте</p>
@@ -182,6 +201,18 @@ const routeInfo = ref({
 })
 
 const ride = computed(() => ridesStore.current)
+
+const driverReviews = computed(() => ride.value?.driver_reviews || [])
+
+const formatRating = (value) => (value != null && value !== '' ? Number(value).toFixed(1) : '—')
+
+const reviewsLabel = (count) => {
+  const mod10 = count % 10
+  const mod100 = count % 100
+  if (mod10 === 1 && mod100 !== 11) return 'отзыв'
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'отзыва'
+  return 'отзывов'
+}
 
 // Проверяем, является ли текущий пользователь водителем этой поездки
 const isDriver = computed(() => {

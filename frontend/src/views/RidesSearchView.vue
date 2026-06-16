@@ -32,7 +32,10 @@
             <p class="text-sm uppercase tracking-[0.3em] text-gray-600">{{ ride.origin_city }} → {{ ride.destination_city }}</p>
             <p class="text-2xl font-semibold text-gray-900">{{ formatDate(ride.departure_time) }}</p>
             <p class="text-sm text-gray-700">
-              {{ ride.driver?.user?.name || ride.driver?.name }} · {{ ride.vehicle?.brand }} {{ ride.vehicle?.model }} · {{ ride.seats_available }} мест
+              {{ ride.driver?.name || 'Водитель' }}
+              <span v-if="ride.driver?.rating_average"> · ★ {{ Number(ride.driver.rating_average).toFixed(1) }}</span>
+              <span v-if="ride.driver?.reviews_received_count"> ({{ ride.driver.reviews_received_count }} {{ reviewsLabel(ride.driver.reviews_received_count) }})</span>
+              · {{ ride.vehicle?.make }} {{ ride.vehicle?.model }} · {{ ride.seats_available }} мест
             </p>
           </div>
           <div class="flex flex-col items-start gap-2 sm:items-end">
@@ -266,6 +269,14 @@ const resetFilters = () => {
 
 const formatDate = (value) => {
   return dayjs(value).format('D MMMM, HH:mm')
+}
+
+const reviewsLabel = (count) => {
+  const mod10 = count % 10
+  const mod100 = count % 100
+  if (mod10 === 1 && mod100 !== 11) return 'отзыв'
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'отзыва'
+  return 'отзывов'
 }
 
 onMounted(() => {

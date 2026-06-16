@@ -27,7 +27,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         // Настраиваем route model binding для balance-requests
-        Route::bind('request', function ($value) {
+        Route::bind('rechargeRequest', function ($value) {
             return \App\Models\BalanceRechargeRequest::findOrFail($value);
         });
 

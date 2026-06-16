@@ -36,23 +36,27 @@
           <div class="grid gap-4 md:grid-cols-2 pt-4 border-t border-gray-200">
             <div>
               <p class="text-sm font-semibold text-gray-900 mb-2">Документ о владении ТС</p>
-              <a
-                :href="getDocumentUrl(vehicle.id, 'ownership')"
-                target="_blank"
+              <button
+                v-if="vehicle.ownership_document_path"
+                type="button"
                 class="text-blue-600 hover:text-blue-700 underline text-sm"
+                @click="openDocument(vehicle.id, 'ownership')"
               >
                 Просмотреть документ
-              </a>
+              </button>
+              <span v-else class="text-sm text-gray-400">Документ не загружен</span>
             </div>
             <div>
               <p class="text-sm font-semibold text-gray-900 mb-2">Водительские права</p>
-              <a
-                :href="getDocumentUrl(vehicle.id, 'license')"
-                target="_blank"
+              <button
+                v-if="vehicle.license_document_path"
+                type="button"
                 class="text-blue-600 hover:text-blue-700 underline text-sm"
+                @click="openDocument(vehicle.id, 'license')"
               >
                 Просмотреть документ
-              </a>
+              </button>
+              <span v-else class="text-sm text-gray-400">Документ не загружен</span>
             </div>
           </div>
 
@@ -119,6 +123,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import http from '@/helpers/http'
+import { openAdminDocument, getVehicleDocumentPath } from '@/helpers/adminDocuments'
 
 const loading = ref(false)
 const processing = ref(false)
@@ -177,12 +182,7 @@ const rejectVehicle = async () => {
   }
 }
 
-const getDocumentUrl = (vehicleId, type) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
-  const token = localStorage.getItem('auth_token')
-  // Добавляем токен как query параметр для прямого доступа через браузер
-  return `${baseUrl}/admin/vehicle-verifications/${vehicleId}/document/${type}${token ? '?token=' + token : ''}`
-}
+const openDocument = (vehicleId, type) => openAdminDocument(getVehicleDocumentPath(vehicleId, type))
 
 const getStatusLabel = (status) => {
   const labels = {
